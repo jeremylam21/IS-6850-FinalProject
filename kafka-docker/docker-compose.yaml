@@ -54,6 +54,27 @@ services:
     networks:
       - flink-net
 
+  influxdb:
+    image: influxdb:2.7
+    container_name: influxdb
+    ports:
+      - "8086:8086"
+    volumes:
+      - influxdb-data:/var/lib/influxdb2
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=supersecret
+      - DOCKER_INFLUXDB_INIT_ORG=default-org
+      - DOCKER_INFLUXDB_INIT_BUCKET=stock_data
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=mytoken
+    networks:
+      - flink-net
+
+volumes:
+  influxdb-data:
+
 networks:
   flink-net:
     name: flink-net
+
