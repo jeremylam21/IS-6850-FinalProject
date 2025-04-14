@@ -54,23 +54,28 @@ CREATE TABLE flagged_trades (
 
 # ✅ Create view with parsed timestamp
 table_env.execute_sql("""
-    CREATE TEMPORARY TABLE stock_trades_view (
-      ticker STRING,
-      price DOUBLE,
-      volume INT,
-      event_type STRING,
-      trader_id STRING,
-      event_time TIMESTAMP_LTZ(3),
-      WATERMARK FOR event_time AS event_time - INTERVAL '5' SECOND
-    ) AS
-    SELECT
-      ticker,
-      price,
-      volume,
-      event_type,
-      trader_id,
-      `timestamp` AS event_time
-    FROM stock_trades
+CREATE TEMPORARY TABLE stock_trades_view (
+  ticker STRING,
+  price DOUBLE,
+  volume INT,
+  event_type STRING,
+  trader_id STRING,
+  event_time TIMESTAMP_LTZ(3),
+  WATERMARK FOR event_time AS event_time - INTERVAL '5' SECOND
+)
+""")
+
+# Step 2: Insert into it from stock_trades
+table_env.execute_sql("""
+INSERT INTO stock_trades_view
+SELECT
+  ticker,
+  price,
+  volume,
+  event_type,
+  trader_id,
+  `timestamp` AS event_time
+FROM stock_trades
 """)
 # CREATE TEMPORARY VIEW stock_trades_view AS
 # SELECT
