@@ -1,6 +1,6 @@
 from pyflink.table import EnvironmentSettings, TableEnvironment
 from pyflink.table.window import Tumble
-from pyflink.table.expressions import col, lit, expr
+from pyflink.table.expressions import col, lit
 
 # 1. Set up streaming environment
 env_settings = EnvironmentSettings.in_streaming_mode()
