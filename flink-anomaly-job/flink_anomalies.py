@@ -62,6 +62,8 @@ CREATE TEMPORARY TABLE stock_trades_view (
   trader_id STRING,
   event_time TIMESTAMP_LTZ(3),
   WATERMARK FOR event_time AS event_time - INTERVAL '5' SECOND
+) WITH (
+  'connector' = 'values'
 )
 """)
 
