@@ -29,7 +29,7 @@ services:
       - flink-net
 
   flink-jobmanager:
-    image: flink:1.17
+    image: flink-kafka-enabled:1.17
     container_name: flink-jobmanager
     restart: unless-stopped
     ports:
@@ -43,7 +43,7 @@ services:
       - flink-net
 
   flink-taskmanager:
-    image: flink:1.17
+    image: flink-kafka-enabled:1.17
     container_name: flink-taskmanager
     restart: unless-stopped
     depends_on:
