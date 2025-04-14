@@ -71,6 +71,26 @@ services:
     networks:
       - flink-net
 
+  anomaly-writer:
+    build:
+      context: ./influx-anomaly-writer
+    depends_on:
+      - kafka
+      - influxdb
+    networks:
+      - flink-net
+
+  stock-writer:
+    build:
+      context: ./influx-event-writer
+    depends_on:
+      - kafka
+      - influxdb
+    networks:
+      - flink-net
+
+
+
 volumes:
   influxdb-data:
 
