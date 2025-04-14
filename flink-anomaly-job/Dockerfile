@@ -17,8 +17,8 @@ RUN curl -fLo /opt/flink/lib/flink-connector-kafka-1.17.1.jar \
       https://repo1.maven.org/maven2/org/apache/flink/flink-connector-kafka/1.17.1/flink-connector-kafka-1.17.1.jar && \
     curl -fLo /opt/flink/lib/kafka-clients-3.3.1.jar \
       https://repo1.maven.org/maven2/org/apache/kafka/kafka-clients/3.3.1/kafka-clients-3.3.1.jar && \
-    curl -fLo /opt/flink/lib/flink-json-1.17.0.jar \
-      https://repo1.maven.org/maven2/org/apache/flink/flink-json/1.17.0/flink-json-1.17.0.jar
+    curl -fLo /opt/flink/lib/flink-json-1.17.1.jar \
+      https://repo1.maven.org/maven2/org/apache/flink/flink-json/1.17.1/flink-json-1.17.1.jar
 
 
 # ✅ Debug: confirm JARs are present
