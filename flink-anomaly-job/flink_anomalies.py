@@ -24,7 +24,7 @@ CREATE TABLE stock_trades (
     'properties.bootstrap.servers' = 'kafka:9092',
     'format' = 'json',
     'scan.startup.mode' = 'earliest-offset',
-    'json.timestamp-format.standard' = 'UNIX'
+    'json.timestamp-format.standard' = 'ISO-8601'
 )
 """)
 

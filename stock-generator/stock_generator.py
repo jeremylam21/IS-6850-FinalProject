@@ -33,7 +33,7 @@ def generate_trade_events():
             "volume": random.randint(10, 1000),
             "event_type": random.choice(["buy", "sell"]),
             "trader_id": str(random.randint(100000, 999999)),
-            "timestamp": int(datetime.now(UTC).timestamp() * 1000)
+            "timestamp": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%S")
         }
 
         producer.send("stock_events", value=event)
