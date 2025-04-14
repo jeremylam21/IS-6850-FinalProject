@@ -6,8 +6,8 @@ WORKDIR /app
 RUN pip install --no-cache-dir apache-flink
 
 # Copy the PyFlink job script
-COPY flink_anomaly_detection.py .
+COPY flink_anomalies.py .
 
 # Submit the job to the running Flink cluster
-CMD ["pyflink", "job", "run", "/app/flink_anomaly_detection.py", "--jobmanager", "flink-jobmanager:8081"]
+CMD ["pyflink", "job", "run", "/app/flink_anomalies.py", "--jobmanager", "flink-jobmanager:8081"]
 
