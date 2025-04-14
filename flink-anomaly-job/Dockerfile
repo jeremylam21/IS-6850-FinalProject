@@ -13,12 +13,14 @@ RUN pip3 install --no-cache-dir apache-flink==1.17.1
 
 
 # ✅ Add Kafka + JSON connector JARs to lib for automatic discovery
-RUN curl -fLo /opt/flink/lib/flink-connector-kafka-1.17.1.jar \
+RUN mkdir -p /opt/flink/plugins/kafka && \
+    curl -fLo /opt/flink/plugins/kafka/flink-connector-kafka-1.17.1.jar \
       https://repo1.maven.org/maven2/org/apache/flink/flink-connector-kafka/1.17.1/flink-connector-kafka-1.17.1.jar && \
-    curl -fLo /opt/flink/lib/kafka-clients-3.3.1.jar \
-      https://repo1.maven.org/maven2/org/apache/kafka/kafka-clients/3.3.1/kafka-clients-3.3.1.jar && \
-    curl -fLo /opt/flink/lib/flink-json-1.17.1.jar \
-      https://repo1.maven.org/maven2/org/apache/flink/flink-json/1.17.1/flink-json-1.17.1.jar
+    curl -fLo /opt/flink/plugins/kafka/flink-json-1.17.1.jar \
+      https://repo1.maven.org/maven2/org/apache/flink/flink-json/1.17.1/flink-json-1.17.1.jar && \
+    curl -fLo /opt/flink/plugins/kafka/kafka-clients-3.3.1.jar \
+      https://repo1.maven.org/maven2/org/apache/kafka/kafka-clients/3.3.1/kafka-clients-3.3.1.jar
+
 
 
 # ✅ Debug: confirm JARs are present
