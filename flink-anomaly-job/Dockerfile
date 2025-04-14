@@ -14,5 +14,4 @@ ENV PATH=$JAVA_HOME/bin:$PATH
 # Copy your PyFlink job
 COPY flink_anomalies.py .
 
-# Submit the job using the PyFlink CLI
-CMD ["python", "-m", "pyflink.datastream", "/app/flink_anomalies.py", "--jobmanager", "flink-jobmanager:8081"]
+CMD ["flink", "run", "-py", "/app/flink_anomalies.py", "-m", "flink-jobmanager:8081"]
