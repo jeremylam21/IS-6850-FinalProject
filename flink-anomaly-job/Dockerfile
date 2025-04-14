@@ -4,7 +4,7 @@ WORKDIR /app
 
 # Install Java and other required deps for PyFlink runtime
 RUN apt-get update && \
-    apt-get install -y openjdk-11-jdk curl && \
+    apt-get install -y default-jdk curl && \
     pip install --no-cache-dir apache-flink==1.18.0
 
 # Set Java env vars for Flink
