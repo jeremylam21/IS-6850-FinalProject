@@ -1,0 +1,53 @@
+version: "3.8"
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    networks:
+      - flink-net
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - flink-net
+    depends_on:
+      - zookeeper
+
+  flink-jobmanager:
+    image: flink-kafka-enabled:1.17
+    build:
+      context: .
+    environment:
+      - FLINK_PLUGINS_DIR=/opt/flink/plugins
+      - JOB_MANAGER_RPC_ADDRESS=flink-jobmanager
+    ports:
+      - "8081:8081"
+    command: jobmanager
+    depends_on:
+      - kafka
+    networks:
+      - flink-net
+
+  flink-taskmanager:
+    image: flink-kafka-enabled:1.17
+    build:
+      context: .
+    environment:
+      - FLINK_PLUGINS_DIR=/opt/flink/plugins
+      - JOB_MANAGER_RPC_ADDRESS=flink-jobmanager
+    command: taskmanager
+    depends_on:
+      - flink-jobmanager
+    networks:
+      - flink-net
+
+networks:
+  flink-net:
