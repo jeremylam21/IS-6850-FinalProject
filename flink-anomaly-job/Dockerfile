@@ -1,17 +1,15 @@
-FROM python:3.10-slim
+FROM flink:1.18
 
+USER root
 WORKDIR /app
 
-# Install Java and other required deps for PyFlink runtime
+# Install Python and PyFlink (version must match Flink)
 RUN apt-get update && \
-    apt-get install -y default-jdk curl && \
-    pip install --no-cache-dir apache-flink==1.18.0
+    apt-get install -y python3 python3-pip && \
+    ln -s /usr/bin/python3 /usr/bin/python && \
+    pip3 install --no-cache-dir apache-flink==1.18.0
 
-# Set Java env vars for Flink
-ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
-ENV PATH=$JAVA_HOME/bin:$PATH
-
-# Copy your PyFlink job
 COPY flink_anomalies.py .
 
+# Submit the job using the built-in CLI
 CMD ["flink", "run", "-py", "/app/flink_anomalies.py", "-m", "flink-jobmanager:8081"]
