@@ -29,5 +29,7 @@ RUN ls -lh /opt/flink/lib
 # ✅ Copy your PyFlink job
 COPY flink_anomalies.py .
 
+ENV FLINK_PLUGINS_DIR=/opt/flink/plugins
+
 # ✅ Submit job to Flink cluster
 CMD ["flink", "run", "-py", "/app/flink_anomalies.py", "-m", "flink-jobmanager:8081"]

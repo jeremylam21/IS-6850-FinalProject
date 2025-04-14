@@ -35,6 +35,7 @@ services:
     ports:
       - "8081:8081"
     environment:
+      - FLINK_PLUGINS_DIR=/opt/flink/plugins
       - JOB_MANAGER_RPC_ADDRESS=flink-jobmanager
     command: jobmanager
     depends_on:
@@ -49,6 +50,7 @@ services:
     depends_on:
       - flink-jobmanager
     environment:
+      - FLINK_PLUGINS_DIR=/opt/flink/plugins
       - JOB_MANAGER_RPC_ADDRESS=flink-jobmanager
     command: taskmanager
     networks:
