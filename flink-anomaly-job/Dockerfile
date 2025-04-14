@@ -11,10 +11,12 @@ RUN apt-get update && \
 # ✅ Install PyFlink that matches Flink runtime
 RUN pip3 install --no-cache-dir apache-flink==1.17.1
 
-# ✅ Add Kafka + JSON connectors (shaded JARs with all dependencies)
+# ✅ Add Kafka + JSON connector JARs (non-shaded but with required clients)
 RUN set -e && \
     curl -fLo /opt/flink/lib/flink-connector-kafka.jar \
-      https://repo1.maven.org/maven2/org/apache/flink/flink-connector-kafka/1.17.0/flink-connector-kafka-1.17.0-shaded.jar && \
+      https://repo1.maven.org/maven2/org/apache/flink/flink-connector-kafka/1.17.0/flink-connector-kafka-1.17.0.jar && \
+    curl -fLo /opt/flink/lib/kafka-clients.jar \
+      https://repo1.maven.org/maven2/org/apache/kafka/kafka-clients/3.3.1/kafka-clients-3.3.1.jar && \
     curl -fLo /opt/flink/lib/flink-json.jar \
       https://repo1.maven.org/maven2/org/apache/flink/flink-json/1.17.0/flink-json-1.17.0.jar
 
