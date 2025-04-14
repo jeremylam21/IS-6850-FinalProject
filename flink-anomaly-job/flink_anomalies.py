@@ -2,12 +2,13 @@ from pyflink.table import EnvironmentSettings, TableEnvironment
 from pyflink.table.window import Tumble
 from pyflink.table.expressions import col, lit
 
-# 1. Set up streaming environment
 env_settings = EnvironmentSettings.in_streaming_mode()
 table_env = TableEnvironment.create(env_settings)
+
 import os
 print("🛠️ FLINK_PLUGINS_DIR =", os.environ.get("FLINK_PLUGINS_DIR"))
-# 2. Define source table (Kafka)
+
+# ✅ Define raw source table with STRING timestamp
 table_env.execute_sql("""
 CREATE TABLE stock_trades (
     ticker STRING,
@@ -15,8 +16,8 @@ CREATE TABLE stock_trades (
     volume INT,
     event_type STRING,
     trader_id STRING,
-    `timestamp` TIMESTAMP_LTZ(3),
-    WATERMARK FOR `timestamp` AS `timestamp` - INTERVAL '5' SECOND
+    `timestamp` STRING,
+    WATERMARK FOR `timestamp` AS TO_TIMESTAMP_LTZ(`timestamp`, 0) - INTERVAL '5' SECOND
 ) WITH (
     'connector' = 'kafka',
     'topic' = 'stock_events',
@@ -27,6 +28,7 @@ CREATE TABLE stock_trades (
 )
 """)
 
+# ✅ Sink table
 table_env.execute_sql("""
 CREATE TABLE flagged_trades (
     ticker STRING,
@@ -50,13 +52,24 @@ CREATE TABLE flagged_trades (
 )
 """)
 
+# ✅ Create view with parsed timestamp
+table_env.execute_sql("""
+CREATE TEMPORARY VIEW stock_trades_view AS
+SELECT
+  ticker,
+  price,
+  volume,
+  event_type,
+  trader_id,
+  TO_TIMESTAMP_LTZ(`timestamp`, 0) AS event_time
+FROM stock_trades
+""")
 
-# 3. Create a Table object for stock_trades
-stock_trades = table_env.from_path("stock_trades")
+# ✅ Use event_time for windowing
+stock_trades = table_env.from_path("stock_trades_view")
 
-# 4. Create windowed aggregation: trade_stats
 trade_stats = stock_trades.window(
-    Tumble.over(lit(1).minute).on(col("timestamp")).alias("w")
+    Tumble.over(lit(1).minute).on(col("event_time")).alias("w")
 ).group_by(
     col("ticker"), col("w")
 ).select(
@@ -68,13 +81,9 @@ trade_stats = stock_trades.window(
     col("volume").stddev_pop.alias("vol_std")
 )
 
-# 5. Register it for reuse
 table_env.create_temporary_view("trade_stats", trade_stats)
 
-# 6. Create and register base view as well
-table_env.create_temporary_view("stock_trades_view", stock_trades)
-
-# 7. Use SQL to join and apply anomaly logic (better syntax handling)
+# ✅ Join logic using parsed event_time
 table_env.execute_sql("""
 CREATE TEMPORARY VIEW trade_with_flags AS
 SELECT
@@ -83,7 +92,7 @@ SELECT
   t.volume,
   t.event_type,
   t.trader_id,
-  t.`timestamp`,
+  t.event_time AS `timestamp`,
   s.avg_price,
   s.price_std,
   s.avg_volume,
@@ -96,10 +105,10 @@ SELECT
 FROM stock_trades_view t
 JOIN trade_stats s
 ON t.ticker = s.ticker
-AND FLOOR(t.`timestamp` TO MINUTE) = s.window_start
+AND FLOOR(t.event_time TO MINUTE) = s.window_start
 """)
 
-# 8. Push results to new table linked to Kafka new topic
+# ✅ Write to Kafka sink
 table_env.execute_sql("""
 INSERT INTO flagged_trades
 SELECT * FROM trade_with_flags
