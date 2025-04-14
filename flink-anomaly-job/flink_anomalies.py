@@ -41,7 +41,7 @@ CREATE TABLE flagged_trades (
 ) WITH (
     'connector' = 'kafka',
     'topic' = 'stock_anomalies',
-    'properties.bootstrap.servers' = 'localhost:9092',
+    'properties.bootstrap.servers' = 'kafka:9092',
     'format' = 'json',
     'sink.partitioner' = 'round-robin',
     'scan.startup.mode' = 'earliest-offset'
