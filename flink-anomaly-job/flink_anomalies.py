@@ -16,8 +16,8 @@ CREATE TABLE stock_trades (
     volume INT,
     event_type STRING,
     trader_id STRING,
-    `timestamp` STRING,
-    WATERMARK FOR `timestamp` AS TO_TIMESTAMP_LTZ(`timestamp`, 0) - INTERVAL '5' SECOND
+    `timestamp` TIMESTAMP_LTZ(3),
+    WATERMARK FOR `timestamp` AS `timestamp` - INTERVAL '5' SECOND
 ) WITH (
     'connector' = 'kafka',
     'topic' = 'stock_events',
