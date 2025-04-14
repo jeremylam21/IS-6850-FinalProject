@@ -29,6 +29,8 @@ services:
       - flink-net
 
   flink-jobmanager:
+    build:
+      context: ./flink-anomaly-job
     image: flink-kafka-enabled:1.17
     container_name: flink-jobmanager
     restart: unless-stopped
