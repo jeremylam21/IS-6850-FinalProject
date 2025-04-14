@@ -46,6 +46,8 @@ services:
       - flink-net
 
   flink-taskmanager:
+    build:
+      context: ./flink-anomaly-job
     image: flink-kafka-enabled:1.17
     container_name: flink-taskmanager
     restart: unless-stopped
