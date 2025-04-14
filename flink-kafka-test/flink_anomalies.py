@@ -15,14 +15,15 @@ CREATE TABLE stock_trades (
     volume INT,
     event_type STRING,
     trader_id STRING,
-    event_time TIMESTAMP_LTZ(3),
-    WATERMARK FOR event_time AS event_time - INTERVAL '5' SECOND
+    `timestamp` TIMESTAMP_LTZ(3),
+    WATERMARK FOR `timestamp` AS `timestamp` - INTERVAL '5' SECOND
 ) WITH (
     'connector' = 'kafka',
     'topic' = 'stock_events',
     'properties.bootstrap.servers' = 'kafka:9092',
     'format' = 'json',
-    'scan.startup.mode' = 'earliest-offset'
+    'scan.startup.mode' = 'earliest-offset',
+    'json.timestamp-format.standard' = 'ISO-8601'
 )
 """)
 
@@ -33,7 +34,7 @@ CREATE TABLE flagged_trades (
     volume INT,
     event_type STRING,
     trader_id STRING,
-    event_time TIMESTAMP_LTZ(3),
+    `timestamp` TIMESTAMP_LTZ(3),
     avg_price DOUBLE,
     price_std DOUBLE,
     avg_volume DOUBLE,
@@ -55,7 +56,7 @@ stock_trades = table_env.from_path("stock_trades")
 
 # 4. Create windowed aggregation: trade_stats
 trade_stats = stock_trades.window(
-    Tumble.over(lit(1).minute).on(col("event_time")).alias("w")
+    Tumble.over(lit(1).minute).on(col("timestamp")).alias("w")
 ).group_by(
     col("ticker"), col("w")
 ).select(
@@ -82,7 +83,7 @@ SELECT
   t.volume,
   t.event_type,
   t.trader_id,
-  t.event_time,
+  t.`timestamp`,
   s.avg_price,
   s.price_std,
   s.avg_volume,
@@ -95,7 +96,7 @@ SELECT
 FROM stock_trades_view t
 JOIN trade_stats s
 ON t.ticker = s.ticker
-AND FLOOR(t.event_time TO MINUTE) = s.window_start
+AND FLOOR(t.`timestamp` TO MINUTE) = s.window_start
 """)
 
 # 8. Push results to new table linked to Kafka new topic
