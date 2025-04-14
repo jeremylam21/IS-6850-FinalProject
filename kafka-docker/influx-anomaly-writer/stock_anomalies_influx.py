@@ -16,7 +16,7 @@ consumer = KafkaConsumer(
 bucket = "stock_data"
 org = "default-org"
 token = "mytoken"
-url = "http://localhost:8086"
+url = "http://influxdb:8086"
 
 influx = InfluxDBClient(url=url, token=token, org=org)
 write_api = influx.write_api(write_options=SYNCHRONOUS)
