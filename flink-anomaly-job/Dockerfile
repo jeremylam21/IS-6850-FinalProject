@@ -2,13 +2,14 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
-# Install PyFlink
+# Install dependencies
 RUN pip install --no-cache-dir apache-flink
 
-# Copy the PyFlink job script
+# Add Flink CLI to PATH
+ENV PATH="${PATH}:/root/.local/lib/python3.10/site-packages/pyflink/bin"
+
+# Copy the job
 COPY flink_anomalies.py .
 
-# Submit the job to the running Flink cluster
-CMD ["python", "-m", "pyflink", "job", "run", "/app/flink_anomalies.py", "--jobmanager", "flink-jobmanager:8081"]
-
-
+# Submit the job
+CMD ["flink", "run", "-py", "/app/flink_anomalies.py", "-m", "flink-jobmanager:8081"]
