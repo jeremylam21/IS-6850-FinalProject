@@ -12,8 +12,8 @@ RUN mkdir -p /opt/flink/plugins/kafka && \
     curl -fLo /opt/flink/plugins/kafka/flink-sql-connector-kafka-1.17.1.jar \
     https://repo1.maven.org/maven2/org/apache/flink/flink-sql-connector-kafka/1.17.1/flink-sql-connector-kafka-1.17.1.jar
 
-COPY flink_anomalies.py .
+COPY job.py /app/job.py
 
 ENV FLINK_PLUGINS_DIR=/opt/flink/plugins
 
-CMD ["flink", "run", "-py", "/app/flink_anomalies.py", "-m", "flink-jobmanager:8081"]
+CMD ["flink", "run", "-py", "/app/job.py", "-m", "flink-jobmanager:8081"]
