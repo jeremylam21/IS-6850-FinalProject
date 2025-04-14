@@ -19,7 +19,7 @@ CREATE TABLE stock_trades (
 ) WITH (
     'connector' = 'kafka',
     'topic' = 'stock_events',
-    'properties.bootstrap.servers' = 'localhost:9092',
+    'properties.bootstrap.servers' = 'kafka:9092',
     'format' = 'json',
     'scan.startup.mode' = 'earliest-offset'
 )
