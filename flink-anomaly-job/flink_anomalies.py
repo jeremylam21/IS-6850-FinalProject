@@ -5,7 +5,7 @@ from pyflink.table.expressions import col, lit
 # 1. Set up streaming environment
 env_settings = EnvironmentSettings.in_streaming_mode()
 table_env = TableEnvironment.create(env_settings)
-print("✅ Available connectors:", table_env.list_connectors())
+#print("✅ Available connectors:", table_env.list_connectors())
 # 2. Define source table (Kafka)
 table_env.execute_sql("""
 CREATE TABLE stock_trades (
