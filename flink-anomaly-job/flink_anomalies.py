@@ -24,7 +24,7 @@ CREATE TABLE stock_trades (
     'properties.bootstrap.servers' = 'kafka:9092',
     'format' = 'json',
     'scan.startup.mode' = 'earliest-offset',
-    'json.timestamp-format.standard' = 'ISO-8601'
+    'json.timestamp-format.standard' = 'UNIX'
 )
 """)
 
@@ -61,7 +61,7 @@ SELECT
   volume,
   event_type,
   trader_id,
-  TO_TIMESTAMP_LTZ(`timestamp`, 0) AS event_time
+  `timestamp` AS event_time
 FROM stock_trades
 """)
 
