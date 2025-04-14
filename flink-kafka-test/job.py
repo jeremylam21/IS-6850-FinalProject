@@ -7,7 +7,7 @@ print("🛠️ START: Attempting to create Kafka table...")
 
 table_env.execute_sql("""
 CREATE TABLE stock_trades (
-    value STRING
+    msg STRING
 ) WITH (
     'connector' = 'kafka',
     'topic' = 'stock_events',
