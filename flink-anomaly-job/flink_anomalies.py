@@ -1,14 +1,14 @@
 from pyflink.table import EnvironmentSettings, TableEnvironment
 from pyflink.table.window import Tumble
 from pyflink.table.expressions import col, lit
+import os
 
+# Setup
 env_settings = EnvironmentSettings.in_streaming_mode()
 table_env = TableEnvironment.create(env_settings)
-
-import os
 print("🛠️ FLINK_PLUGINS_DIR =", os.environ.get("FLINK_PLUGINS_DIR"))
 
-# ✅ Define raw source table with STRING timestamp
+# ✅ Source table with watermark on timestamp
 table_env.execute_sql("""
 CREATE TABLE stock_trades (
     ticker STRING,
@@ -52,49 +52,11 @@ CREATE TABLE flagged_trades (
 )
 """)
 
-# ✅ Create view with parsed timestamp
-table_env.execute_sql("""
-CREATE TEMPORARY TABLE stock_trades_view (
-  ticker STRING,
-  price DOUBLE,
-  volume INT,
-  event_type STRING,
-  trader_id STRING,
-  event_time TIMESTAMP_LTZ(3),
-  WATERMARK FOR event_time AS event_time - INTERVAL '5' SECOND
-) WITH (
-  'connector' = 'print'
-)
-""")
-
-# Step 2: Insert into it from stock_trades
-table_env.execute_sql("""
-INSERT INTO stock_trades_view
-SELECT
-  ticker,
-  price,
-  volume,
-  event_type,
-  trader_id,
-  `timestamp` AS event_time
-FROM stock_trades
-""")
-# CREATE TEMPORARY VIEW stock_trades_view AS
-# SELECT
-#   ticker,
-#   price,
-#   volume,
-#   event_type,
-#   trader_id,
-#   `timestamp` AS event_time
-# FROM stock_trades
-# """)
-
-# ✅ Use event_time for windowing
-stock_trades = table_env.from_path("stock_trades_view")
+# ✅ Use `timestamp` directly for windowing
+stock_trades = table_env.from_path("stock_trades")
 
 trade_stats = stock_trades.window(
-    Tumble.over(lit(1).minute).on(col("event_time")).alias("w")
+    Tumble.over(lit(1).minute).on(col("timestamp")).alias("w")
 ).group_by(
     col("ticker"), col("w")
 ).select(
@@ -108,7 +70,7 @@ trade_stats = stock_trades.window(
 
 table_env.create_temporary_view("trade_stats", trade_stats)
 
-# ✅ Join logic using parsed event_time
+# ✅ Join with raw source on timestamp
 table_env.execute_sql("""
 CREATE TEMPORARY VIEW trade_with_flags AS
 SELECT
@@ -117,7 +79,7 @@ SELECT
   t.volume,
   t.event_type,
   t.trader_id,
-  t.event_time AS `timestamp`,
+  t.`timestamp`,
   s.avg_price,
   s.price_std,
   s.avg_volume,
@@ -127,13 +89,13 @@ SELECT
     WHEN t.volume > s.avg_volume + 2 * s.vol_std THEN 'volume_spike'
     ELSE 'normal'
   END AS anomaly_flag
-FROM stock_trades_view t
+FROM stock_trades t
 JOIN trade_stats s
 ON t.ticker = s.ticker
-AND FLOOR(t.event_time TO MINUTE) = s.window_start
+AND FLOOR(t.`timestamp` TO MINUTE) = s.window_start
 """)
 
-# ✅ Write to Kafka sink
+# ✅ Sink results
 table_env.execute_sql("""
 INSERT INTO flagged_trades
 SELECT * FROM trade_with_flags
