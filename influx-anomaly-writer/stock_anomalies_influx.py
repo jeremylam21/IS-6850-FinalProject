@@ -2,21 +2,22 @@ from kafka import KafkaConsumer
 from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import SYNCHRONOUS
 import json
+import os
 
 # --- Kafka Setup ---
 consumer = KafkaConsumer(
-    'stock_anomalies',
-    bootstrap_servers='localhost:9092',
+    os.getenv("KAFKA_TOPIC","stock_anomalies"),
+    bootstrap_servers=os.getenv("KAFKA_BOOTSTRAP_SERVERS", "kafka:9092"),
     value_deserializer=lambda m: json.loads(m.decode('utf-8')),
     auto_offset_reset='earliest',
-    group_id='influx-writer'
+    group_id=os.getenv("KAFKA_GROUP_ID", "anomaly-writer-group")
 )
 
 # --- InfluxDB Setup ---
-bucket = "stock_data"
-org = "default-org"
-token = "mytoken"
-url = "http://influxdb:8086"
+bucket = os.getenv("INFLUX_BUCKET", "stock_data")
+org = os.getenv("INFLUX_ORG", "default-org")
+token = os.getenv("INFLUX_TOKEN", "mytoken")
+url = os.getenv("INFLUX_URL", "http://influxdb:8086")
 
 influx = InfluxDBClient(url=url, token=token, org=org)
 write_api = influx.write_api(write_options=SYNCHRONOUS)

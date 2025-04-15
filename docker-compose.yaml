@@ -100,6 +100,14 @@ services:
     depends_on:
       - kafka
       - influxdb
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - KAFKA_TOPIC=stock_anomalies
+      - KAFKA_GROUP_ID=anomaly-writer-group
+      - INFLUX_URL=http://influxdb:8086
+      - INFLUX_BUCKET=stock_data
+      - INFLUX_ORG=default-org
+      - INFLUX_TOKEN=mytoken
     networks:
       - flink-net
 
@@ -109,6 +117,14 @@ services:
     depends_on:
       - kafka
       - influxdb
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - KAFKA_TOPIC=stock_events
+      - KAFKA_GROUP_ID=event-writer-group
+      - INFLUX_URL=http://influxdb:8086
+      - INFLUX_BUCKET=stock_data
+      - INFLUX_ORG=default-org
+      - INFLUX_TOKEN=mytoken
     networks:
       - flink-net
 
