@@ -18,6 +18,7 @@ RUN curl -fLo /opt/flink/lib/flink-sql-connector-kafka-1.17.1.jar \
 # Copy your PyFlink job into the image
 COPY flink_anomalies.py .
 COPY entrypoint.sh .
+RUN chmod 755 /app/entrypoint.sh
 
 # Optional: debug what JARs are available
 RUN ls -lh /opt/flink/lib
