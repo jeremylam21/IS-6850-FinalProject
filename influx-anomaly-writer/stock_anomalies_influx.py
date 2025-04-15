@@ -4,6 +4,23 @@ from influxdb_client.client.write_api import SYNCHRONOUS
 import json
 import os
 
+import time
+import socket
+
+def wait_for_kafka(host, port, timeout=60):
+    start = time.time()
+    while time.time() - start < timeout:
+        try:
+            with socket.create_connection((host, port), timeout=2):
+                print("✅ Kafka is available!")
+                return
+        except OSError:
+            print("⏳ Waiting for Kafka...")
+            time.sleep(2)
+    raise Exception("Kafka not reachable")
+
+wait_for_kafka("kafka", 9092)
+
 # --- Kafka Setup ---
 consumer = KafkaConsumer(
     os.getenv("KAFKA_TOPIC","stock_anomalies"),
