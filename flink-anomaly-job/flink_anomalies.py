@@ -92,7 +92,8 @@ SELECT
 FROM stock_trades t
 JOIN trade_stats s
 ON t.ticker = s.ticker
-AND FLOOR(t.`timestamp` TO MINUTE) = s.window_start
+AND t.`timestamp` >= s.window_start
+AND t.`timestamp` < s.window_start + INTERVAL '1' MINUTE
 """)
 
 # ✅ Sink results
