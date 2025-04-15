@@ -92,8 +92,8 @@ SELECT
 FROM stock_trades t
 JOIN trade_stats s
 ON t.ticker = s.ticker
-AND t.`timestamp` >= s.window_start
-AND t.`timestamp` < s.window_start + INTERVAL '1' MINUTE
+AND t.`timestamp` >= CAST(s.window_start AS TIMESTAMP_LTZ(3))
+AND t.`timestamp` < CAST(s.window_start AS TIMESTAMP_LTZ(3)) + INTERVAL '1' MINUTE
 """)
 
 # ✅ Sink results
