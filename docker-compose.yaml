@@ -56,7 +56,7 @@ services:
     environment:
       - FLINK_PLUGINS_DIR=/opt/flink/plugins
       - JOB_MANAGER_RPC_ADDRESS=flink-jobmanager
-    command: jobmanager
+    entrypoint: /app/entrypoint.sh
     depends_on:
       - kafka
     networks:
@@ -128,10 +128,23 @@ services:
     networks:
       - flink-net
 
-
+  grafana:
+    image: grafana/grafana:10.2.3
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana-data:/var/lib/grafana
+    networks:
+      - flink-net
 
 volumes:
   influxdb-data:
+  grafana-data:
 
 networks:
   flink-net:
